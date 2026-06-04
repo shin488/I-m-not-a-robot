@@ -101,12 +101,14 @@ h1 { font-size: 20px; margin-bottom: 8px; }
   transition: border-color .15s, background .3s;
 }
 
-.captcha-box.shake { animation: shake .3s ease; }
+.captcha-box.shake {
+  animation: shake var(--shake-duration, .3s) ease;
+}
 
 @keyframes shake {
   0%,100% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
+  25% { transform: translateX(calc(var(--shake-x, -6px) * -1)); }
+  75% { transform: translateX(var(--shake-x, 6px)); }
 }
 
 .timer-bar {
@@ -291,6 +293,63 @@ h1 { font-size: 20px; margin-bottom: 8px; }
   transition: width .5s ease;
   background: linear-gradient(90deg, var(--danger), #ff9800, var(--success));
 }
+
+/* Fake popup */
+.fake-popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn .2s ease;
+}
+.fake-popup.show { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.popup-content {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 28px 32px 20px;
+  width: 340px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  animation: popIn .3s ease;
+}
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.popup-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.popup-body {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.popup-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 32px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s;
+}
+.popup-btn:hover { background: var(--primary-hover); }
 
 /* Confetti */
 .confetti-container {
