@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅の行き先リスト</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700;900&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans JP', -apple-system, sans-serif;
+  background: #f7f3ed;
+  min-height: 100vh;
+  color: #3a322a;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(232, 212, 188, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(188, 212, 232, 0.2) 0%, transparent 50%);
+}
+.hero {
+  background: linear-gradient(135deg, #2d5a3d 0%, #4a7c59 40%, #7ba684 100%);
+  padding: 48px 24px 32px;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+.hero h1 {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  position: relative;
+}
+.hero h1::after {
+  content: ' ✈️';
+  font-size: 24px;
+}
+.hero .sub {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-top: 6px;
+  font-weight: 400;
+  position: relative;
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 16px;
+  position: relative;
+}
+.hero-stat { text-align: center; }
+.hero-stat-num {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+}
+.hero-stat-label {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+.container { max-width: 960px; margin: 0 auto; padding: 20px 16px 40px; }
+.add-form {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 2px 12px rgba(58, 50, 42, 0.08);
+  border: 1px solid #e8e0d6;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  position: relative;
+}
+.add-form::before {
+  content: '✈️ 新しい行き先';
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: #fff;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8b7e74;
+  letter-spacing: 0.05em;
+}
+.add-form input, .add-form select {
+  padding: 10px 14px;
+  border: 1px solid #e0d6ca;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  background: #fcfaf7;
+  transition: border-color .2s, box-shadow .2s;
+}
+.add-form input:focus, .add-form select:focus {
+  border-color: #4a7c59;
+  box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.12);
+}
+.add-form input { flex: 1; min-width: 160px; }
+.add-form select { min-width: 110px; }
+.add-btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2d5a3d, #4a7c59);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+.add-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3); }
+.add-btn:active { transform: translateY(0); }
+.sections { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(58, 50, 42, 0.08);
+  border: 1px solid #e8e0d6;
+}
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px dashed #e0d6ca;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  letter-spacing: 0.03em;
+}
+.section-title .count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8b7e74;
+  background: #f7f3ed;
+  padding: 2px 10px;
+  border-radius: 99px;
+}
+.place-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 8px;
+  border-bottom: 1px solid #f0ece7;
+  animation: fadeIn .3s ease;
+  transition: background .15s;
+  border-radius: 8px;
+  margin: 0 -8px;
+  padding: 12px 12px;
+}
+.place-item:hover { background: #fcfaf7; }
+.place-item:last-child { border-bottom: none; }
+.place-item.visited { opacity: 0.7; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.place-icon {
+  font-size: 22px;
+  line-height: 1.4;
+  flex-shrink: 0;
+  width: 32px;
+  text-align: center;
+}
+.place-body { flex: 1; min-width: 0; }
+.place-name {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.place-name .visited-stamp {
+  font-size: 9px;
+  background: #2d5a3d;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.place-memo { font-size: 12px; color: #a0968a; word-break: break-word; margin-top: 1px; }
+.place-date { font-size: 11px; color: #c4bab0; margin-top: 3px; }
+.place-actions { display: flex; gap: 2px; flex-shrink: 0; align-items: center; }
+.place-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 4px 6px;
+  transition: transform .15s, opacity .15s;
+  opacity: 0.35;
+  border-radius: 6px;
+}
+.place-actions button:hover { opacity: 1; transform: scale(1.15); background: #f0ece7; }
+.empty-msg {
+  text-align: center;
+  padding: 40px 0 32px;
+  color: #c4bab0;
+  font-size: 14px;
+}
+.empty-msg .big { font-size: 36px; display: block; margin-bottom: 8px; }
+.footer-note {
+  text-align: center;
+  margin-top: 32px;
+  font-size: 12px;
+  color: #c4bab0;
+  letter-spacing: 0.05em;
+}
+@media (max-width: 640px) {
+  .sections { grid-template-columns: 1fr; }
+  .add-form { flex-direction: column; }
+  .add-form input, .add-form select { width: 100%; }
+  .hero { padding: 32px 16px 24px; }
+  .hero h1 { font-size: 22px; }
+  .hero-stats { gap: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>旅の行き先</h1>
+  <div class="sub">いつか行く日のために</div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="totalCount">0</div>
+      <div class="hero-stat-label">全行き先</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="visitedCount">0</div>
+      <div class="hero-stat-label">旅した</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="remainingCount">0</div>
+      <div class="hero-stat-label">まだ行ってない</div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="add-form">
+    <input type="text" id="nameInput" placeholder="場所名（例: サグラダ・ファミリア）" autocomplete="off">
+    <input type="text" id="memoInput" placeholder="メモ（任意）" autocomplete="off">
+    <select id="regionSelect">
+      <option value="domestic">🇯🇵 国内</option>
+      <option value="international">🌍 国外</option>
+    </select>
+    <button class="add-btn" id="addBtn">✈ 追加</button>
+  </div>
+  <div class="sections">
+    <div class="section">
+      <div class="section-title">
+        🇯🇵 国内
+        <span class="count" id="domesticCount">0</span>
+      </div>
+      <div id="domesticList"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">
+        🌍 国外
+        <span class="count" id="internationalCount">0</span>
+      </div>
+      <div id="internationalList"></div>
+    </div>
+  </div>
+  <div class="footer-note">✈ いつか全部行けますように</div>
+</div>
+<script>
+const STORAGE_KEY = 'travel_wishlist';
+let places = [];
+function load() {
+  try { places = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { places = []; }
+}
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(places));
+}
+function render() {
+  const domestic = places.filter(p => p.region === 'domestic');
+  const international = places.filter(p => p.region === 'international');
+  const visited = places.filter(p => p.visited);
+  document.getElementById('domesticList').innerHTML = renderList(domestic);
+  document.getElementById('internationalList').innerHTML = renderList(international);
+  document.getElementById('domesticCount').textContent = domestic.length;
+  document.getElementById('internationalCount').textContent = international.length;
+  document.getElementById('totalCount').textContent = places.length;
+  document.getElementById('visitedCount').textContent = visited.length;
+  document.getElementById('remainingCount').textContent = places.length - visited.length;
+}
+function renderList(list) {
+  if (list.length === 0) {
+    return '<div class="empty-msg"><span class="big">🗺️</span>まだ行き先がないよ<br>追加してみよう</div>';
+  }
+  return list.map((p, idx) => {
+    const realIdx = places.indexOf(p);
+    const icon = getPlaceIcon(p.name);
+    const stamp = p.visited ? '<span class="visited-stamp">VISITED</span>' : '';
+    return `
+      <div class="place-item${p.visited ? ' visited' : ''}">
+        <div class="place-icon">${icon}</div>
+        <div class="place-body">
+          <div class="place-name">${esc(p.name)} ${stamp}</div>
+          ${p.memo ? `<div class="place-memo">${esc(p.memo)}</div>` : ''}
+          <div class="place-date">${p.date || ''}</div>
+        </div>
+        <div class="place-actions">
+          <button onclick="toggleVisited(${realIdx})" title="行った/行きたい">${p.visited ? '✅' : '🏷️'}</button>
+          <button onclick="removePlace(${realIdx})" title="削除">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+function getPlaceIcon(name) {
+  const s = name.toLowerCase();
+  if (s.includes('海') || s.includes('浜') || s.includes(' beach') || s.includes('島')) return '🏖️';
+  if (s.includes('山') || s.includes('岳') || s.includes(' mountain') || s.includes('富士')) return '🏔️';
+  if (s.includes('寺') || s.includes(' temple') || s.includes('神社') || s.includes(' shrine')) return '⛩️';
+  if (s.includes('城') || s.includes(' castle')) return '🏯';
+  if (s.includes('塔') || s.includes(' tower') || s.includes('タワー')) return '🗼';
+  if (s.includes('公園') || s.includes(' park') || s.includes('庭園')) return '🌳';
+  if (s.includes('教会') || s.includes(' church') || s.includes('寺院')) return '⛪';
+  if (s.includes('博物館') || s.includes(' museum') || s.includes('美術館')) return '🏛️';
+  if (s.includes('駅') || s.includes(' station')) return '🚉';
+  if (s.includes('橋') || s.includes(' bridge')) return '🌉';
+  const icons = ['📍', '🏝️', '🌲', '🏜️', '🎡', '🏰', '🏠', '🏗️', '🌋', '🏛️'];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = ((hash << 5) - hash) + name.charCodeAt(i);
+  return icons[Math.abs(hash) % icons.length];
+}
+function addPlace() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) return;
+  const memo = document.getElementById('memoInput').value.trim();
+  const region = document.getElementById('regionSelect').value;
+  places.push({
+    name, memo, region,
+    visited: false,
+    date: new Date().toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', year: 'numeric' }),
+  });
+  save();
+  render();
+  document.getElementById('nameInput').value = '';
+  document.getElementById('memoInput').value = '';
+  document.getElementById('nameInput').focus();
+}
+function toggleVisited(idx) {
+  places[idx].visited = !places[idx].visited;
+  save();
+  render();
+}
+function removePlace(idx) {
+  places.splice(idx, 1);
+  save();
+  render();
+}
+document.getElementById('addBtn').addEventListener('click', addPlace);
+document.getElementById('nameInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') addPlace();
+});
+load();
+render();
+</script>
+</body>
+</html>
